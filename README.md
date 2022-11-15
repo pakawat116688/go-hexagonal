@@ -7,7 +7,7 @@ Hexagonal Architecture Golang
 
 - service
     - employee.go          = port
-    - employee_service.go  = adapter
+    - employee_service.go  = Businees Logic
 
 - handler
-    สร้าง RRSTful โดยใช้ mux
+    สร้าง RRSTful โดยใช้ mux และ file employee.go คือ adaptor
