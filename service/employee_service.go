@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 
 	"github.com/pakawatkung/go-hexagonal/repository"
@@ -53,6 +55,9 @@ func (s employeeService) GetEmployee() ([]EmployeeResponse, error) {
 func (s employeeService) GetEmployeeId(id int) (*EmployeeResponse, error) {
 	employee, err := s.employeeRepo.GetById(id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("employee not found")
+		}
 		log.Println(err)
 		return nil, err
 	}

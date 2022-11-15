@@ -36,7 +36,7 @@ func (h employeeRest) GetEmployeeId(w http.ResponseWriter, r *http.Request) {
 	}
 	employee, err := h.empSrv.GetEmployeeId(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintln(w, err)
 		return
 	}
@@ -63,6 +63,8 @@ func (h employeeRest) InsertEmployee(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	msg := "Service Insert Success"
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("content-type", "application/json")
 	json.NewEncoder(w).Encode(msg)
 }
 
@@ -78,5 +80,7 @@ func (h employeeRest) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	msg := "Service Delete Success"
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("content-type", "application/json")
 	json.NewEncoder(w).Encode(msg)
 }
