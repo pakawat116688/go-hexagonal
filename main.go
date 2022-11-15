@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -10,17 +13,46 @@ import (
 	"github.com/pakawatkung/go-hexagonal/handler"
 	"github.com/pakawatkung/go-hexagonal/repository"
 	"github.com/pakawatkung/go-hexagonal/service"
+	"github.com/spf13/viper"
 )
+
+func initConfig() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func inittimeZone() {
+	ict, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		panic(err)
+	}
+	time.Local = ict
+}
 
 func main() {
 
+	inittimeZone()
+	initConfig()
+
 	os.Remove("./mydata.db")
-	db, err := sqlx.Open("sqlite3", "./mydata.db")
+	db, err := sqlx.Open(viper.GetString("db.driver"), viper.GetString("db.file"))
 	if err != nil {
 		println("Error Cannot Open the Database...")
 		panic(err)
 	}
 	defer db.Close()
+
+	db.SetConnMaxLifetime(3 * time.Minute)
+	db.SetMaxOpenConns(3)
+	db.SetMaxIdleConns(3)
 
 	employeeReposiotory := repository.NewEmployeeRepositoryDB(db)
 	employeeService := service.NewEmployeeService(employeeReposiotory)
@@ -57,9 +89,9 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/employee", employeeRests.GetEmployees).Methods(http.MethodGet)
 	router.HandleFunc("/employee/{id:[0-9]+}", employeeRests.GetEmployeeId).Methods(http.MethodGet)
-	router.HandleFunc("/employee/{name}/{salary}/{tel}/{status}", employeeRests.InsertEmployee)
+	router.HandleFunc("/employee/{name}/{salary:[0-9]+}/{tel}/{status:[0-1]}", employeeRests.InsertEmployee)
 	// employee/test/30000/06x-xxx-9999/0
 	router.HandleFunc("/employee/delete/{id:[0-9]+}", employeeRests.DeleteEmployee)
-	http.ListenAndServe(":8000", router)
+	http.ListenAndServe(fmt.Sprintf(":%v", viper.GetString("app.port")), router)
 
 }

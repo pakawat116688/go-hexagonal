@@ -43,14 +43,19 @@ func (r employeeRepositoryDB) InsertData(name string, salary int, tel string, st
 	query := `insert into employee(name, salary, tel, status)
 		values (?, ?, ?, ?)`
 
-	state, err := r.db.Prepare(query)
+	state, err := r.db.Exec(query, name, salary, tel, status)
 	if err != nil {
 		return err
 	}
-	_, err = state.Exec(name, salary, tel, status)
+	affected, err := state.RowsAffected()
 	if err != nil {
-		return err	
+		return err
 	}
+
+	if affected <= 0 {
+		return errors.New("cannot insert")
+	}
+
 	println("Insert Data Success...")
 	return nil
 }
@@ -86,7 +91,7 @@ func (r employeeRepositoryDB) DeleteAll() error {
 
 	affected, err := state.RowsAffected()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if affected <= 0 {
@@ -101,14 +106,17 @@ func (r employeeRepositoryDB) DeleteAll() error {
 func (r employeeRepositoryDB) DeleteById(id int) error {
 
 	query := "delete from Employee where id=?"
-	state, err := r.db.Prepare(query)
+	state, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	affected, err := state.RowsAffected()
 	if err != nil {
 		return err
 	}
 
-	_, err = state.Exec(id)
-	if err != nil {
-		return nil
+	if affected <= 0 {
+		return errors.New("cannot delete")
 	}
 
 	println("delete id ",id," success...")

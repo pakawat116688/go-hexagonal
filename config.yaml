@@ -1,0 +1,7 @@
+app:
+  port: 8080
+
+db:
+  driver: "sqlite3"
+  file: "./mydata.db"
+
