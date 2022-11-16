@@ -38,26 +38,45 @@ func (r employeeRepositoryDB) CreateTable() error {
 	return nil
 }
 
-func (r employeeRepositoryDB) InsertData(name string, salary int, tel string, status int) error {
+func (r employeeRepositoryDB) InsertData(emp EmployeeInsert) (*Employee ,error) {
 
 	query := `insert into employee(name, salary, tel, status)
 		values (?, ?, ?, ?)`
 
-	state, err := r.db.Exec(query, name, salary, tel, status)
+	state, err := r.db.Exec(
+		query,
+		emp.Name,
+		emp.Salary,
+		emp.Tel,
+		emp.Status,
+	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	affected, err := state.RowsAffected()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if affected <= 0 {
-		return errors.New("cannot insert")
+		return nil, errors.New("cannot insert")
+	}
+	id, err := state.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+
+	dataOut := Employee{
+		Id: int(id),
+		Name: emp.Name,
+		Salary: emp.Salary,
+		Tel: emp.Tel,
+		Status: emp.Status,
 	}
 
 	println("Insert Data Success...")
-	return nil
+
+	return &dataOut ,nil
 }
 
 func (r employeeRepositoryDB) GetAll() ([]Employee, error) {

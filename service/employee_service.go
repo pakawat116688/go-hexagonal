@@ -24,13 +24,27 @@ func (s employeeService) CreatedEmployee() error {
 	return nil
 }
 
-func (s employeeService) InsertEmployee(name string, salary int, tel string, status int) error {
-	err := s.employeeRepo.InsertData(name, salary, tel, status)
+func (s employeeService) InsertEmployee(req EmployeeRequres) (*EmployeeResponse, error) {
+
+	dataInsert := repository.EmployeeInsert{
+		Name: req.Name,
+		Salary: req.Salary,
+		Tel: req.Tel,
+		Status: req.Status,
+	}
+	data, err := s.employeeRepo.InsertData(dataInsert)
 	if err != nil {
 		logs.Error(err)
-		return errs.NewNotfoundError("cannnot insert data")
+		return nil, errs.NewNotfoundError("cannnot insert data")
 	}
-	return nil
+
+	response := EmployeeResponse{
+		Id: data.Id,
+		Name: data.Name,
+		Tel: data.Tel,
+	}
+
+	return &response, nil
 }
 
 func (s employeeService) GetEmployee() ([]EmployeeResponse, error) {

@@ -8,9 +8,16 @@ type Employee struct {
 	Status int    `db:"status"`
 }
 
+type EmployeeInsert struct {
+	Name   string `db:"name"`
+	Salary int    `db:"salary"`
+	Tel    string `db:"tel"`
+	Status int    `db:"status"`
+}
+
 type EmployeeRepository interface {
 	CreateTable() error
-	InsertData(string, int, string, int) error
+	InsertData(EmployeeInsert) (*Employee ,error)
 	GetAll() ([]Employee, error)
 	GetById(int) (*Employee, error)
 	DeleteAll() error

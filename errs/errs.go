@@ -31,3 +31,10 @@ func NewDeleteError() error {
 		Message: "cannot delete row",
 	}
 }
+
+func NewValidationError() error  {
+	return AppError{
+		Code: http.StatusUnprocessableEntity,
+		Message: "request body incorrect",
+	}
+}
