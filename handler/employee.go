@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -14,15 +13,14 @@ type employeeRest struct {
 	empSrv service.EmployeeService
 }
 
-func NewEmployeeRest(empSrv service.EmployeeService) employeeRest  {
-	return employeeRest{empSrv : empSrv}
+func NewEmployeeRest(empSrv service.EmployeeService) employeeRest {
+	return employeeRest{empSrv: empSrv}
 }
 
 func (h employeeRest) GetEmployees(w http.ResponseWriter, r *http.Request) {
 	employees, err := h.empSrv.GetEmployee()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, err)
+		handleEroor(w, err)
 		return
 	}
 	w.Header().Set("content-type", "application/json")
@@ -32,12 +30,11 @@ func (h employeeRest) GetEmployees(w http.ResponseWriter, r *http.Request) {
 func (h employeeRest) GetEmployeeId(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
-		return 
+		return
 	}
 	employee, err := h.empSrv.GetEmployeeId(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, err)
+		handleEroor(w, err)
 		return
 	}
 	w.Header().Set("content-type", "application/json")
@@ -56,10 +53,9 @@ func (h employeeRest) InsertEmployee(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	err = h.empSrv.InsertEmployee(name,salary,tel,status)
+	err = h.empSrv.InsertEmployee(name, salary, tel, status)
 	if err != nil {
-		w.WriteHeader(http.StatusNotModified)
-		fmt.Fprintln(w, err)
+		handleEroor(w, err)
 		return
 	}
 	msg := "Service Insert Success"
@@ -75,8 +71,7 @@ func (h employeeRest) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	}
 	err = h.empSrv.DeleteEmployeeId(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, err)
+		handleEroor(w, err)
 		return
 	}
 	msg := "Service Delete Success"

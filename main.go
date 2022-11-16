@@ -11,6 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pakawatkung/go-hexagonal/handler"
+	"github.com/pakawatkung/go-hexagonal/logs"
 	"github.com/pakawatkung/go-hexagonal/repository"
 	"github.com/pakawatkung/go-hexagonal/service"
 	"github.com/spf13/viper"
@@ -92,6 +93,8 @@ func main() {
 	router.HandleFunc("/employee/{name}/{salary:[0-9]+}/{tel}/{status:[0-1]}", employeeRests.InsertEmployee)
 	// employee/test/30000/06x-xxx-9999/0
 	router.HandleFunc("/employee/delete/{id:[0-9]+}", employeeRests.DeleteEmployee)
+
+	logs.Info("Development Employee Service Started at port "+viper.GetString("app.port"))
 	http.ListenAndServe(fmt.Sprintf(":%v", viper.GetString("app.port")), router)
 
 }
