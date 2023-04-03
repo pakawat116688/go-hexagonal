@@ -10,4 +10,4 @@ Hexagonal Architecture Golang
     - employee_service.go  = Businees Logic
 
 - handler
-    สร้าง RRSTful โดยใช้ mux และ file employee.go คือ adaptor
+    สร้าง RESTful โดยใช้ mux และ file employee.go คือ adaptor
